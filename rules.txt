@@ -1,0 +1,23 @@
+The rules:
+
+Pieces
+Pawn - Can usually move one square, but can also choose to move two on the first move. Takes diagonally.
+Knight - Moves in an L-shape, can traverse pieces on its path.
+Bishop - Can move as many squares as it wants diagonally.
+Rook - Can move as many squares as it wants vertically and horizontally.
+Queen - Can move as many squares as it wants diagonally, vertically and horizontally.
+King - Can move one square diagonally, vertically and horizontally.
+
+
+Board
+The board is 8*8, 64 squares in total. Pieces are naturally confined to the board.
+
+
+Winning
+The game is won by checkmate. Checkmate is defined as the king being in check with no possible ways to
+escape checking, meaning the king is unable to move to a safe square, the piece delivering check cannot be captured,
+and the attack of the piece delivering the check cannot be blocked by another piece.
+
+Drawing
+The game is drawn by stalemate, which is when a player has no legal moves.
+
