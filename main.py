@@ -1,8 +1,6 @@
 '''
 CHESS
 
-A program in which I will try to create the game of chess in Python.
-Extensive googling will be required.
 The general plan -
 1: Create a main class for the pieces, divide this into subclasses for all the pieces.
 2: Create a basic board (probably not too hard) and find a way to "place" pieces on this board.
