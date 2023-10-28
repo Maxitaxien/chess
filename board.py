@@ -11,44 +11,62 @@ from pieces import *
 
 class Board():
     def __init__(self):
-        self.board = [['0_0' for _ in range(8)] for _ in range(8)]
+        self.board = [[EmptySquare() for row in range(8)] for col in range(8)]
+
     def setup(self): #Sets initial position.
-        #Placeholder strings for now - piece objects later
 
         #PAWNS:
-        self.board[1] = ['P_B' for _ in range(8)]
-        self.board[6] = ['P_W' for _ in range(8)]
+        self.board[1] = [Pawn(colour='W', pos=(1, col)) for col in range(8)]
+        self.board[6] = [Pawn(colour='B', pos=(6, col)) for col in range(8)]
 
         #ROOKS
-        self.board[0][0] = 'R_B'
-        self.board[0][7] = 'R_B'
+        self.board[0][0] = Rook(colour='W', pos=(0, 0))
+        self.board[0][7] = Rook(colour='W', pos=(0, 7))
 
-        self.board[7][0] = 'R_W'
-        self.board[7][7] = 'R_W'
+        self.board[7][0] = Rook(colour='B', pos=(7, 0))
+        self.board[7][7] = Rook(colour='B', pos=(7, 7))
 
         #KNIGHTS
-        self.board[0][1] = 'N_B'
-        self.board[0][6] = 'N_B'
+        self.board[0][1] = Knight(colour='W', pos=(0, 1))
+        self.board[0][6] = Knight(colour='W', pos=(0, 6))
 
-        self.board[7][1] = 'N_W'
-        self.board[7][6] = 'N_W'
+        self.board[7][1] = Knight(colour='B', pos=(7, 1))
+        self.board[7][6] = Knight(colour='B', pos=(7, 6))
 
         #BISHOPS
-        self.board[0][2] = 'B_B'
-        self.board[0][5] = 'B_B'
+        self.board[0][2] = Bishop(colour='W', pos=(0, 2))
+        self.board[0][5] = Bishop(colour='W', pos=(0, 5))
 
-        self.board[7][2] = 'B_W'
-        self.board[7][5] = 'B_W'
+        self.board[7][2] = Bishop(colour='B', pos=(7, 2))
+        self.board[7][5] = Bishop(colour='B', pos=(7, 5))
 
         #QUEENS
-        self.board[0][3] = 'Q_B'
+        self.board[0][3] = Queen(colour='W', pos=(0, 3))
 
-        self.board[7][3] = 'Q_W'
+        self.board[7][3] = Queen(colour='B', pos=(7, 3))
 
         #KINGS
-        self.board[0][4] = 'K_B'
+        self.board[0][4] = King(colour='W', pos=(0, 4))
 
-        self.board[7][4] = 'K_W'
-    def update(self):
-        pass
+        self.board[7][4] = King(colour='B', pos=(7,4))
+    def update(self, move, turn):
+        # Dictionary to convert 'ABCDEFGH' to numbers to update board
+        col_dict = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
+        piece_dict = {'R': Rook(), 'N': Knight(), 'B': Bishop(), 'Q': Queen(), 'K': King()}
+
+        if len(move) == 3:
+            piece = piece_dict[move[0]]
+            row = int(move[2]) - 1
+            col = col_dict[move[1]]
+        else:
+            piece = Pawn()
+            row = int(move[1]) - 1
+            col = col_dict[move[0]]
+
+        piece.colour = 'W' if turn > 0 else 'B'
+        piece.pos = (row, col)
+
+        self.board[row][col] = piece
+
+        #TODO: Remove piece from previous position
 
