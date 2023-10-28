@@ -1,82 +1,70 @@
-class Piece:
+class Pawn:
     def __init__(self, colour, pos):
         self.colour = colour
         self.pos = pos
-
-    def legal_moves(self):
-        pass
-
-    def move(self):
-        pass
-
-    def has_moved(self):
-        moved = False
-        return moved
-
-    def pos(self):
-        #TODO: Make function that returns current piece position on board.
-
-class Pawn(Piece):
-    def __init__(self):
-        super().__init__()
-
-    def legal_moves(self):
+        self.has_moved = False
+    def show_legal_moves(self):
         if self.colour == 'B':
-            basic_move = [0, -1]
-            starting_move = [0, -2]
+            basic_move = [1, 0]
+            starting_move = [2, 0]
             movelist = basic_move
-            if not has_moved(): #TODO: Implement has_moved()
+            if not self.has_moved:
                 movelist.append([2,0])
+
         elif self.colour == 'W':
             basic_move = [0, 1]
             starting_move = [0, 2]
             movelist = basic_move
-            if not has_moved():  # TODO: Implement has_moved()
+            if not self.has_moved:
                 movelist.append(starting_move)
 
-        #TODO: Make enemy_piece thing
+        #TODO: Make capture rules
         #if pos == enemy_pos:
             #take = [1, -1], [-1, -1]
 
-    def pos(self):
+    def promote(selfs):
         pass
 
-class Knight(Piece):
-    def __init__(self):
-        super().__init__(self, colour)
-        moves = []
-
-    def pos(self):
+    def move(self):
+        self.has_moved = True
         pass
 
-class Bishop(Piece):
-    def __init__(self):
-        super().__init__(self, colour)
-        moves = []
 
-    def pos(self):
+class Knight:
+    def __init__(self, colour, pos):
+        self.colour = colour
+        self.pos = pos
+
+class Bishop:
+    def __init__(self, colour, pos):
+        self.colour = colour
+        self.pos = pos
+
+    def show_legal_moves(self):
+        pass
+class Rook:
+    def __init__(self, colour, pos):
+        self.colour = colour
+        self.pos = pos
+
+    def show_legal_moves(self):
+        pass
+class Queen:
+    def __init__(self, colour, pos):
+        self.colour = colour
+        self.pos = pos
+
+    def show_legal_moves(self):
+        pass
+class King:
+    def __init__(self, colour, pos):
+        self.colour = colour
+        self.pos = pos
+        self.has_moved = False
+
+    def show_legal_moves(self):
         pass
 
-class Rook(Piece):
-    def __init__(self):
-        super().__init__(self, colour)
-        moves = []
-
-    def pos(self):
-        pass
-
-class Queen(Piece):
-    def __init__(self):
-        super().__init__(self, colour)
-        moves = []
-
-    def pos(self):
-        pass
-
-class King(Piece):
-    def __init__(self):
-        super().__init__(self, colour)
-        moves = []
-
-    def pos(self):
+    def move(self):
+        self.has_moved = True
         pass
