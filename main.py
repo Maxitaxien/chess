@@ -50,12 +50,16 @@ def main():
                 print('Invalid move entered, please try again.')
                 continue
 
-        #TODO: Implement legality check of move
+        legal = board.check_legality(move, turn)
 
-        board.update(move, turn)
 
-        for row in reversed(board.board):
-            print([str(piece) for piece in row])
+        if legal:
+            print(f'{"White" if turn == 1 else "Black"} played {move}.') #SOMETHING GOING WRONG IN THIS STEP - IS FINE AFTER board.check_legality, BUT THEN GOES BACK TO P_W.
+        else:
+            print('Illegal move entered, please try again.')
+            continue
+
+        board.show_board()
 
         turn_counter += 0.5
         turn *= -1

@@ -2,21 +2,9 @@ class Pawn:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
         self.pos = pos
-        self.has_moved = False
-        self.movelist = []
-    def show_legal_moves(self):
-        basic_move = (1, 0) if self.colour == 'B' else (-1, 0)
-        starting_move = (2, 0) if self.colour == 'B' else [-2, 0]
-
-        #TODO: Check legality of moves before appending
-
-        self.movelist.append(basic_move)
-
-        if not self.has_moved:
-            self.movelist.append(starting_move)
-
-        #MAKE CAPTURE RULES
-        #if pos == enemy_pos:
+        self.legal_moves = []
+    def capture(self):
+        pass
 
     def promote(self):
         pass
@@ -44,6 +32,7 @@ class Bishop:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
         self.pos = pos
+        self.legal_moves = []
 
     def show_legal_moves(self):
         pass
@@ -54,9 +43,8 @@ class Rook:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
         self.pos = pos
+        self.legal_moves = []
 
-    def show_legal_moves(self):
-        pass
 
     def __str__(self):
         return 'R_' + self.colour
@@ -64,9 +52,7 @@ class Queen:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
         self.pos = pos
-
-    def show_legal_moves(self):
-        pass
+        self.legal_moves = []
 
     def __str__(self):
         return 'Q_' + self.colour
@@ -76,9 +62,7 @@ class King:
         self.pos = pos
         self.has_moved = False
         self.in_check = False
-    def show_legal_moves(self):
-        pass
-
+        self.legal_moves = []
     def move(self):
         self.has_moved = True
         pass
@@ -93,4 +77,4 @@ class EmptySquare:
         self.pos = pos
 
     def __str__(self):
-        return ' W '
+        return ' _ '
