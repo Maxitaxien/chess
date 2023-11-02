@@ -76,14 +76,12 @@ class Board():
         self.board[7][4] = kings_b[0]
 
     def show_board(self):
-        for row in reversed(self.board):
+        for row in reversed(self.board): #Note: You could have a show_board without reversed for the black side to flip view around.
             print([str(piece) for piece in row])
 
     def update(self, piece, move, colour):
         # Dictionary to convert 'ABCDEFGH' to numbers to update board
         piece_dict = {'R': Rook(), 'N': Knight(), 'B': Bishop(), 'Q': Queen(), 'K': King()}
-
-        print(f'White pieces look like this in "update": {self.white_pieces["P"]}\n')
 
         if len(move) == 3: #ALL OTHER THAN PAWNS
             row = int(move[2]) - 1
@@ -112,9 +110,8 @@ class Board():
         else:
             checking_dict = self.black_pieces
 
-        print(f'White pieces look like this before checking legality: {self.white_pieces["P"]}\n')
-
         #PAWN
+        #TODO: For pawns, it makes sense to only check pawns on the same column. This is a possible optimization for the program.
         if move[0] not in 'NRBQK': #If first coordinate of move is not a piece, then it is a pawn
             for pawn in checking_dict['P']: #Check every pawn
                 potential_moves = []
@@ -126,9 +123,11 @@ class Board():
                 if (colour == -1 and pawn.pos[0] == 6) or (colour == 1 and pawn.pos[0] == 1):
                     potential_moves.append(starting_move)
 
+                square_front = [pawn.pos[0] + 1, pawn.pos[1]] if colour == 1 else [pawn.pos[0] - 1, pawn.pos[1]]
+
                 for potential_move in potential_moves:
                     pos_after_move = (pawn.pos[0] + potential_move[0], pawn.pos[1])
-                    if (isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare)) and (7 >= pos_after_move[0] >= 0) and (7 >= pos_after_move[1] >= 0):
+                    if isinstance(self.board[square_front[0]][square_front[1]], EmptySquare) and ((7 >= square_front[0]) >= 0) and (7 >= square_front[1] >= 0):
                         coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
                         move_converted = ''.join(coords_converted)
                         pawn.legal_moves.append(move_converted)
@@ -139,8 +138,6 @@ class Board():
 
                     last_row = pawn.pos[0]
                     last_col = pawn.pos[1]
-
-                    pawn.legal_moves = [] #Reset legal moves - they will be different after movement.
 
                     if colour == 1:
                         pawn.pos = (pawn.pos[0] + (int(move[1]) - 1), pawn.pos[1])
@@ -153,9 +150,70 @@ class Board():
 
                     self.board[last_row][last_col] = EmptySquare()
 
+                pawn.legal_moves = []  # Reset legal moves
+
         #ROOK
         elif move[0] == 'R':
-            return
+            for rook in checking_dict['R']:
+                legal_moves = []
+
+                #Finding possible vertical moves:
+                row = rook.pos[0] + 1
+                col = rook.pos[1]
+                if row < 8:
+                    while isinstance(self.board[row][col], EmptySquare) and (6 >= row):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'R' + ''.join(coords_converted)
+                        rook.legal_moves.append(move_converted)
+                        row += 1
+
+                row = rook.pos[0] - 1
+
+                if row >= 0:
+                    while isinstance(self.board[row][col], EmptySquare) and (0 <= row):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'R' + ''.join(coords_converted)
+                        rook.legal_moves.append(move_converted)
+                        row -= 1
+
+                #Finding possible horizontal moves
+                row = rook.pos[0]
+                col = rook.pos[1] + 1
+                if col < 8:
+                    while isinstance(self.board[row][col], EmptySquare) and (6 >= col):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'R' + ''.join(coords_converted)
+                        rook.legal_moves.append(move_converted)
+                        col += 1
+
+                col = rook.pos[1] - 1
+
+                if col >= 0:
+                    while isinstance(self.board[row][col], EmptySquare) and (0 <= col):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'R' + ''.join(coords_converted)
+                        rook.legal_moves.append(move_converted)
+                        col -= 1
+
+            for rook in checking_dict['R']:
+                if move in rook.legal_moves:
+                    legal = True
+
+                    last_row = rook.pos[0]
+                    last_col = rook.pos[1]
+
+                    if colour == 1:
+                        rook.pos = (rook.pos[0] + (int(move[2]) - 1), rook.pos[1])
+                        self.white_pieces['R'] = [rook for rook in checking_dict['R']]
+                    else:
+                        rook.pos = (rook.pos[0] - (int(move[2]) - 1), rook.pos[1])
+                        self.black_pieces['R'] = [rook for rook in checking_dict['R']]
+
+                    self.update(rook, move, colour)
+
+                    self.board[last_row][last_col] = EmptySquare()
+
+                rook.legal_moves = []  # Reset legal moves
 
         #KNIGHT
         elif move[0] == 'N':

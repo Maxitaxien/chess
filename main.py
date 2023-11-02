@@ -54,7 +54,7 @@ def main():
 
 
         if legal:
-            print(f'{"White" if turn == 1 else "Black"} played {move}.') #SOMETHING GOING WRONG IN THIS STEP - IS FINE AFTER board.check_legality, BUT THEN GOES BACK TO P_W.
+            print(f'{"White" if turn == 1 else "Black"} played {move}.')
         else:
             print('Illegal move entered, please try again.')
             continue
