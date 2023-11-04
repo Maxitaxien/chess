@@ -23,7 +23,7 @@ class Knight:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
         self.pos = pos
-
+        self.legal_moves = []
 
     def __str__(self):
         return 'N_' + self.colour

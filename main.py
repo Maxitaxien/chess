@@ -14,8 +14,6 @@ After this: Using the game as a basis for a reinforcement learning agent?
 """
 
 from board import Board
-from pieces import *
-
 def main():
     board = Board()
     board.setup()
@@ -50,6 +48,7 @@ def main():
                 print('Invalid move entered, please try again.')
                 continue
 
+        #CHECK LEGALITY + MOVE PIECE IF LEGAL
         legal = board.check_legality(move, turn)
 
 

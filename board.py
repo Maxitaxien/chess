@@ -64,19 +64,25 @@ class Board():
         #QUEENS
         queens_w = [Queen(colour='W', pos=(0, 3))]
         self.board[0][3] = queens_w[0]
+        self.white_pieces['Q'] = queens_w #Although we only have one queen to start with, we could promote later!
 
         queens_b = [Queen(colour='B', pos=(7, 3))]
         self.board[7][3] = queens_b[0]
+        self.black_pieces['Q'] = queens_b
+
 
         #KINGS
         kings_w = [King(colour='W', pos=(0, 4))]
         self.board[0][4] = kings_w[0]
+        self.white_pieces['K'] = kings_w #Ok, we will definitely never have more than one king... but let's just stay consistent
 
         kings_b = [King(colour='B', pos=(7, 4))]
         self.board[7][4] = kings_b[0]
+        self.black_pieces['K'] = kings_b
 
     def show_board(self):
-        for row in reversed(self.board): #Note: You could have a show_board without reversed for the black side to flip view around.
+        #TODO: Implement functionality to show board without "reversed" for the black view.
+        for row in reversed(self.board):
             print([str(piece) for piece in row])
 
     def update(self, piece, move, colour):
@@ -101,7 +107,14 @@ class Board():
 
         self.board[row][col] = piece
 
+    def calc_diagonal(self, piece):
+        return
+
+    def calc_cardinal(self, piece):
+        return
+
     def check_legality(self, move, colour):
+        #TODO: Put functions for finding diagonal and vertical/horizontal legal moves in functions so they can easily combine for the queen.
         piece_to_move = None
         legal = False
 
@@ -155,13 +168,12 @@ class Board():
         #ROOK
         elif move[0] == 'R':
             for rook in checking_dict['R']:
-                legal_moves = []
 
                 #Finding possible vertical moves:
                 row = rook.pos[0] + 1
                 col = rook.pos[1]
                 if row < 8:
-                    while isinstance(self.board[row][col], EmptySquare) and (6 >= row):
+                    while (7 >= row) and isinstance(self.board[row][col], EmptySquare):
                         coords_converted = (self.col_dict_rev[col], str((row) + 1))
                         move_converted = 'R' + ''.join(coords_converted)
                         rook.legal_moves.append(move_converted)
@@ -170,7 +182,7 @@ class Board():
                 row = rook.pos[0] - 1
 
                 if row >= 0:
-                    while isinstance(self.board[row][col], EmptySquare) and (0 <= row):
+                    while (0 <= row) and isinstance(self.board[row][col], EmptySquare):
                         coords_converted = (self.col_dict_rev[col], str((row) + 1))
                         move_converted = 'R' + ''.join(coords_converted)
                         rook.legal_moves.append(move_converted)
@@ -180,7 +192,7 @@ class Board():
                 row = rook.pos[0]
                 col = rook.pos[1] + 1
                 if col < 8:
-                    while isinstance(self.board[row][col], EmptySquare) and (6 >= col):
+                    while (7 >= col) and isinstance(self.board[row][col], EmptySquare):
                         coords_converted = (self.col_dict_rev[col], str((row) + 1))
                         move_converted = 'R' + ''.join(coords_converted)
                         rook.legal_moves.append(move_converted)
@@ -189,7 +201,7 @@ class Board():
                 col = rook.pos[1] - 1
 
                 if col >= 0:
-                    while isinstance(self.board[row][col], EmptySquare) and (0 <= col):
+                    while (0 <= col) and isinstance(self.board[row][col], EmptySquare):
                         coords_converted = (self.col_dict_rev[col], str((row) + 1))
                         move_converted = 'R' + ''.join(coords_converted)
                         rook.legal_moves.append(move_converted)
@@ -217,18 +229,151 @@ class Board():
 
         #KNIGHT
         elif move[0] == 'N':
-            return
+            for knight in checking_dict['N']:
+                potential_moves = [(2, 1), (2, -1), (-2, 1), (-2,-1), (1, 2), (1, -2), (-1, 2), (-1, -2)]
+
+                for potential_move in potential_moves:
+                    pos_after_move = (knight.pos[0] + potential_move[0], knight.pos[1] + potential_move[1])
+                    if (7 >= pos_after_move[0] >= 0) and (7 >= pos_after_move[1] >= 0):
+                        if isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare):
+                            coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
+                            move_converted = 'N' + ''.join(coords_converted)
+                            knight.legal_moves.append(move_converted)
+
+
+            for knight in checking_dict['N']:
+                if move in knight.legal_moves:
+                    legal = True
+
+                    last_row = knight.pos[0]
+                    last_col = knight.pos[1]
+
+                    if colour == 1:
+                        knight.pos = (knight.pos[0] + (int(move[2]) - 1), knight.pos[1])
+                        self.white_pieces['N'] = [knight for knight in checking_dict['N']]
+                    else:
+                        knight.pos = (knight.pos[0] - (int(move[2]) - 1), knight.pos[1])
+                        self.black_pieces['N'] = [knight for knight in checking_dict['N']]
+
+                    self.update(knight, move, colour)
+
+                    self.board[last_row][last_col] = EmptySquare()
+
+                knight.legal_moves = []  # Reset legal moves
+
 
         #BISHOP
         elif move[0] == 'B':
-            return
+            for bishop in checking_dict['B']:
+
+                #UP AND LEFT
+                row = bishop.pos[0] + 1
+                col = bishop.pos[1] + 1
+                if row < 8 and col < 8:
+                    while (7 >= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'B' + ''.join(coords_converted)
+                        bishop.legal_moves.append(move_converted)
+                        row += 1
+                        col += 1
+
+                #DOWN AND RIGHT
+                row = bishop.pos[0] - 1
+                col = bishop.pos[1] - 1
+
+                if row >= 0 and col >= 0:
+                    while (0 <= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'B' + ''.join(coords_converted)
+                        bishop.legal_moves.append(move_converted)
+                        row -= 1
+                        col -= 1
+
+                #UP AND RIGHT
+                row = bishop.pos[0] + 1
+                col = bishop.pos[1] - 1
+
+                if row < 8 and col >= 0:
+                    while (7 >= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'B' + ''.join(coords_converted)
+                        bishop.legal_moves.append(move_converted)
+                        row += 1
+                        col -= 1
+
+                #DOWN AND LEFT
+                row = bishop.pos[0] - 1
+                col = bishop.pos[1] + 1
+
+                if row >= 0 and col < 8:
+                    while (0 <= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
+                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                        move_converted = 'B' + ''.join(coords_converted)
+                        bishop.legal_moves.append(move_converted)
+                        row -= 1
+                        col += 1
+
+                for bishop in checking_dict['B']:
+                    if move in bishop.legal_moves:
+                        legal = True
+
+                        last_row = bishop.pos[0]
+                        last_col = bishop.pos[1]
+
+                        if colour == 1:
+                            bishop.pos = (bishop.pos[0] + (int(move[2]) - 1), bishop.pos[1])
+                            self.white_pieces['R'] = [rook for rook in checking_dict['R']]
+                        else:
+                            bishop.pos = (bishop.pos[0] - (int(move[2]) - 1), bishop.pos[1])
+                            self.black_pieces['R'] = [rook for rook in checking_dict['R']]
+
+                        self.update(bishop, move, colour)
+
+                        self.board[last_row][last_col] = EmptySquare()
+
+                    bishop.legal_moves = []  # Reset legal moves
 
         #QUEEN
         elif move[0] == 'Q':
-            return
+            for queen in checking_dict['Q']:
+                return
 
         #KING
-        elif move[0] == 'K':
-            return
+        elif move[0] == 'K' or move == '0-0' or move == '0-0-0':
+            #TODO: Implement castling move
+            #TODO: Make attacked squares off-limits - that is, calculate all legal moves for opponent's pieces and see if they match new coords
+            #(This means you should probably put all the calculations in their own functions anyway)
+
+            for king in checking_dict['K']: #There will only ever be one king, but let's stay consistent with the rest of the program
+                potential_moves = [(1,1),(1,0),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1)]
+
+                for potential_move in potential_moves:
+                    pos_after_move = (king.pos[0] + potential_move[0], king.pos[1] + potential_move[1])
+                    if (7 >= pos_after_move[0] >= 0) and (7 >= pos_after_move[1] >= 0):
+                        if isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare):
+                            coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
+                            move_converted = 'K' + ''.join(coords_converted)
+                            king.legal_moves.append(move_converted)
+
+                for king in checking_dict['K']:
+                    print(king.legal_moves)
+                    if move in king.legal_moves:
+                        legal = True
+
+                        last_row = king.pos[0]
+                        last_col = king.pos[1]
+
+                        if colour == 1:
+                            king.pos = (king.pos[0] + (int(move[2]) - 1), king.pos[1])
+                            self.white_pieces['K'] = [king for king in checking_dict['K']]
+                        else:
+                            king.pos = (king.pos[0] - (int(move[2]) - 1), king.pos[1])
+                            self.black_pieces['K'] = [king for king in checking_dict['K']]
+
+                        self.update(king, move, colour)
+
+                        self.board[last_row][last_col] = EmptySquare()
+
+                    king.legal_moves = []  # Reset legal moves
 
         return legal
