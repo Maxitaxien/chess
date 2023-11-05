@@ -89,23 +89,25 @@ class Board():
         # Dictionary to convert 'ABCDEFGH' to numbers to update board
         piece_dict = {'R': Rook(), 'N': Knight(), 'B': Bishop(), 'Q': Queen(), 'K': King()}
 
-        if len(move) == 3: #ALL OTHER THAN PAWNS
-            row = int(move[2]) - 1
-            col = self.col_dict[move[1]]
-
-            piece.pos = (row, col)
-
-        else: #PAWN MOVE
-            row = int(move[1]) - 1
-            col = self.col_dict[move[0]]
-
-            piece.pos = (row, col)
-
-        if colour == 1:
-            pass
-
+        row = int(move[-1]) - 1
+        col = self.col_dict[move[-2]]
+        piece.pos = (row, col)
 
         self.board[row][col] = piece
+
+        if 'X' in move: #CAPTURE
+            if colour == 1:
+                piece_dict = self.black_pieces
+            else:
+                piece_dict = self.white_pieces
+
+            for key, value in piece_dict.items():
+                for p in value:
+                    if p.pos == piece.pos:
+                        value.remove(p)
+
+
+
 
     def calc_diagonal(self, piece):
         # UP AND LEFT
@@ -118,6 +120,10 @@ class Board():
                 piece.legal_moves.append(move_converted)
                 row += 1
                 col += 1
+            if (7 >= row) and (7 >= col) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
         # DOWN AND RIGHT
         row = piece.pos[0] - 1
@@ -130,6 +136,10 @@ class Board():
                 piece.legal_moves.append(move_converted)
                 row -= 1
                 col -= 1
+            if (0 <= row) and (0 <= col) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
         # UP AND RIGHT
         row = piece.pos[0] + 1
@@ -142,6 +152,10 @@ class Board():
                 piece.legal_moves.append(move_converted)
                 row += 1
                 col -= 1
+            if (7 >= row) and (0 <= col) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
         # DOWN AND LEFT
         row = piece.pos[0] - 1
@@ -154,6 +168,10 @@ class Board():
                 piece.legal_moves.append(move_converted)
                 row -= 1
                 col += 1
+            if (0 <= row) and (7 >= col) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
     def calc_cardinal(self, piece):
 
@@ -166,6 +184,10 @@ class Board():
                 move_converted = str(piece)[0] + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
                 row += 1
+            if (7 <= row)  and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
         row = piece.pos[0] - 1
 
@@ -175,6 +197,10 @@ class Board():
                 move_converted = str(piece)[0] + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
                 row -= 1
+            if (0 <= row) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
         # Finding possible horizontal moves:
         row = piece.pos[0]
@@ -185,6 +211,10 @@ class Board():
                 move_converted = str(piece)[0] + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
                 col += 1
+            if (7 >= col) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
         col = piece.pos[1] - 1
 
@@ -194,9 +224,12 @@ class Board():
                 move_converted = str(piece)[0] + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
                 col -= 1
+            if (0 <= col) and self.board[row][col].colour != piece.colour:
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
 
-    def check_legality(self, move, colour):
-        #TODO: Put functions for finding diagonal and vertical/horizontal legal moves in functions so they can easily combine for the queen.
+    def normal_move(self, move, colour):
         piece_to_move = None
         legal = False
 
@@ -207,11 +240,12 @@ class Board():
 
         #PAWN
         #TODO: For pawns, it makes sense to only check pawns on the same column. This is a possible optimization for the program.
-        if move[0] not in 'NRBQK': #If first coordinate of move is not a piece, then it is a pawn
+        if len(move) == 2 or len(move) == 4: #Length two: g4 for instance, length four: gxh4 for instance
             for pawn in checking_dict['P']: #Check every pawn
                 potential_moves = []
                 basic_move = (1, 0) if colour == 1 else (-1, 0) #Black moves down the board, white moves up
                 starting_move = (2, 0) if colour == 1 else (-2, 0)
+
 
                 potential_moves.append(basic_move)
 
@@ -220,11 +254,21 @@ class Board():
 
                 square_front = [pawn.pos[0] + 1, pawn.pos[1]] if colour == 1 else [pawn.pos[0] - 1, pawn.pos[1]]
 
+                #CHECKING IF NORMAL MOVES ARE LEGAL
                 for potential_move in potential_moves:
                     pos_after_move = (pawn.pos[0] + potential_move[0], pawn.pos[1])
                     if isinstance(self.board[square_front[0]][square_front[1]], EmptySquare) and ((7 >= square_front[0]) >= 0) and (7 >= square_front[1] >= 0):
                         coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
                         move_converted = ''.join(coords_converted)
+                        pawn.legal_moves.append(move_converted)
+
+                #CHECKING IF CAPTURES ARE LEGAL
+                captures = [(1, 1) if colour == 1 else (-1, 1), (1, -1) if colour == 1 else (-1, -1)]
+                for capture in captures:
+                    pos_after_move = (pawn.pos[0] + capture[0], pawn.pos[1] + capture[1])
+                    if ((7 >= pos_after_move[0]) >= 0) and (7 >= pos_after_move[1] >= 0) and not(isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare)) and self.board[pos_after_move[0]][pos_after_move[1]].colour != pawn.colour:
+                        coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
+                        move_converted = self.col_dict_rev[pawn.pos[1]] + 'X' + ''.join(coords_converted)
                         pawn.legal_moves.append(move_converted)
 
             for pawn in checking_dict['P']:
@@ -235,10 +279,10 @@ class Board():
                     last_col = pawn.pos[1]
 
                     if colour == 1:
-                        pawn.pos = (pawn.pos[0] + (int(move[1]) - 1), pawn.pos[1])
+                        pawn.pos = (pawn.pos[0] + (int(move[-1]) - 1), pawn.pos[1] - int(self.col_dict[move[-2]]))
                         self.white_pieces['P'] = [pawn for pawn in checking_dict['P']]
                     else:
-                        pawn.pos = (pawn.pos[0] - (int(move[1]) - 1), pawn.pos[1])
+                        pawn.pos = (pawn.pos[0] - (int(move[-1]) - 1), pawn.pos[1] - int(self.col_dict[move[-2]]))
                         self.black_pieces['P'] = [pawn for pawn in checking_dict['P']]
 
                     self.update(pawn, move, colour)
@@ -260,10 +304,10 @@ class Board():
                     last_col = rook.pos[1]
 
                     if colour == 1:
-                        rook.pos = (rook.pos[0] + (int(move[2]) - 1), rook.pos[1])
+                        rook.pos = (rook.pos[0] + (int(move[-1]) - 1), rook.pos[1] - int(self.col_dict[move[-2]]))
                         self.white_pieces['R'] = [rook for rook in checking_dict['R']]
                     else:
-                        rook.pos = (rook.pos[0] - (int(move[2]) - 1), rook.pos[1])
+                        rook.pos = (rook.pos[0] - (int(move[-1]) - 1), rook.pos[1] - int(self.col_dict[move[-2]]))
                         self.black_pieces['R'] = [rook for rook in checking_dict['R']]
 
                     self.update(rook, move, colour)
@@ -284,6 +328,11 @@ class Board():
                             coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
                             move_converted = 'N' + ''.join(coords_converted)
                             knight.legal_moves.append(move_converted)
+                        elif self.board[pos_after_move[0]][pos_after_move[1]].colour != knight.colour:
+                            coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
+                            move_converted = 'N' + 'X' + ''.join(coords_converted)
+                            knight.legal_moves.append(move_converted)
+
 
 
             for knight in checking_dict['N']:
@@ -294,10 +343,10 @@ class Board():
                     last_col = knight.pos[1]
 
                     if colour == 1:
-                        knight.pos = (knight.pos[0] + (int(move[2]) - 1), knight.pos[1])
+                        knight.pos = (knight.pos[0] + (int(move[-1]) - 1), knight.pos[-2] - int(self.col_dict[move[-2]]))
                         self.white_pieces['N'] = [knight for knight in checking_dict['N']]
                     else:
-                        knight.pos = (knight.pos[0] - (int(move[2]) - 1), knight.pos[1])
+                        knight.pos = (knight.pos[0] - (int(move[-1]) - 1), knight.pos[-2] - int(self.col_dict[move[-2]]))
                         self.black_pieces['N'] = [knight for knight in checking_dict['N']]
 
                     self.update(knight, move, colour)
@@ -321,11 +370,11 @@ class Board():
                         last_col = bishop.pos[1]
 
                         if colour == 1:
-                            bishop.pos = (bishop.pos[0] + (int(move[2]) - 1), bishop.pos[1])
-                            self.white_pieces['R'] = [rook for rook in checking_dict['R']]
+                            bishop.pos = (bishop.pos[0] + (int(move[-1]) - 1), bishop.pos[1] - int(self.col_dict[move[-2]]))
+                            self.white_pieces['B'] = [bishop for bishop in checking_dict['B']]
                         else:
-                            bishop.pos = (bishop.pos[0] - (int(move[2]) - 1), bishop.pos[1])
-                            self.black_pieces['R'] = [rook for rook in checking_dict['R']]
+                            bishop.pos = (bishop.pos[0] - (int(move[-1]) - 1), bishop.pos[1] - int(self.col_dict[move[-2]]))
+                            self.black_pieces['B'] = [bishop for bishop in checking_dict['B']]
 
                         self.update(bishop, move, colour)
 
@@ -341,6 +390,7 @@ class Board():
                 self.calc_diagonal(queen)
 
             for queen in checking_dict['Q']:
+                print(queen.legal_moves)
                 if move in queen.legal_moves:
                     legal = True
 
@@ -348,10 +398,10 @@ class Board():
                     last_col = queen.pos[1]
 
                     if colour == 1:
-                        queen.pos = (queen.pos[0] + (int(move[2]) - 1), queen.pos[1])
+                        queen.pos = (queen.pos[0] + (int(move[-1]) - 1), queen.pos[1] - int(self.col_dict[move[-2]]))
                         self.white_pieces['Q'] = [queen for queen in checking_dict['Q']]
                     else:
-                        queen.pos = (queen.pos[0] - (int(move[2]) - 1), queen.pos[1])
+                        queen.pos = (queen.pos[0] - (int(move[-1]) - 1), queen.pos[1] - int(self.col_dict[move[-2]]))
                         self.black_pieces['Q'] = [queen for queen in checking_dict['Q']]
 
                     self.update(queen, move, colour)
@@ -371,12 +421,18 @@ class Board():
                 potential_moves = [(1,1),(1,0),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1)]
 
                 for potential_move in potential_moves:
+
                     pos_after_move = (king.pos[0] + potential_move[0], king.pos[1] + potential_move[1])
                     if (7 >= pos_after_move[0] >= 0) and (7 >= pos_after_move[1] >= 0):
                         if isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare):
                             coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
                             move_converted = 'K' + ''.join(coords_converted)
                             king.legal_moves.append(move_converted)
+                        elif self.board[pos_after_move[0]][pos_after_move[1]].colour != king.colour:
+                            coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
+                            move_converted = 'K' + 'X' + ''.join(coords_converted)
+                            king.legal_moves.append(move_converted)
+
 
                 for king in checking_dict['K']:
                     if move in king.legal_moves:
@@ -386,10 +442,10 @@ class Board():
                         last_col = king.pos[1]
 
                         if colour == 1:
-                            king.pos = (king.pos[0] + (int(move[2]) - 1), king.pos[1])
+                            king.pos = (king.pos[0] + (int(move[-1]) - 1), king.pos[1] - int(self.col_dict[move[-2]]))
                             self.white_pieces['K'] = [king for king in checking_dict['K']]
                         else:
-                            king.pos = (king.pos[0] - (int(move[2]) - 1), king.pos[1])
+                            king.pos = (king.pos[0] - (int(move[-1]) - 1), king.pos[1] + int(self.col_dict[move[-2]]))
                             self.black_pieces['K'] = [king for king in checking_dict['K']]
 
                         self.update(king, move, colour)

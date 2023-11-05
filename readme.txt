@@ -5,7 +5,7 @@ My own love of chess inspired me to try this project. I don't know where it'll g
 File explanations:
 The file pieces.py has all the piece classes with their associated methods.
 
-The file board.py contains the Board classes with it's main attribute Board.board which has a board representation. This
+The file board.py contains the Board classes with its main attribute Board.board which has a board representation. This
 file also has the logic for updating the board and checking for legal moves.
 
 The file main.py contains the setup of the board and the main game loop.

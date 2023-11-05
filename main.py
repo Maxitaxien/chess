@@ -49,14 +49,13 @@ def main():
                 print('Invalid move entered, please try again.')
                 continue
 
-        if len(move) == 3:
+        elif len(move) == 3:
             if move[-1] not in '12345678' or move[-2] not in 'ABCDEFGH' or move[-3] not in 'RNBKQ':
                 print('Invalid move entered, please try again.')
                 continue
 
-        #CHECK LEGALITY + MOVE PIECE IF LEGAL
-        legal = board.check_legality(move, turn)
-
+        # CHECK LEGALITY + MOVE PIECE IF LEGAL
+        legal = board.normal_move(move, turn)
 
         if legal:
             print(f'{"White" if turn == 1 else "Black"} played {move}.')

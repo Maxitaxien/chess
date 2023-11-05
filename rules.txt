@@ -20,4 +20,4 @@ and the attack of the piece delivering the check cannot be blocked by another pi
 
 Drawing
 The game is drawn by stalemate, which is when a player has no legal moves.
-
+As of now, there are no plans to incorporate the 50-move rule and draws by three-fold repetition.
