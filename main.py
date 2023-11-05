@@ -3,11 +3,11 @@ CHESS
 
 A program in which I will try to create the game of chess in Python.
 The general plan -
-1: Create pieces with associated methods
-2: Create a basic board
-3: Make the pieces able to make legal moves without allowing them to exit the board.
-4: Make the pieces unable to step on squares where friendly pieces are situated.
-5: Make the pieces able to capture enemy pieces.
+1: Create pieces with associated methods - DONE
+2: Create a basic board - DONE
+3: Make the pieces able to make legal moves without allowing them to exit the board. - DONE
+4: Make the pieces unable to step on squares where friendly pieces are situated. - DONE
+5: Make the pieces able to capture enemy pieces. - ONGOING
 6: Implement final checkmate and stalemate rules.
 
 After this: Using the game as a basis for a reinforcement learning agent?
@@ -35,9 +35,15 @@ def main():
             move = input('Enter black\'s move in algebraic notation.').upper()
 
         if move == 'Q':
-            break
+            confirm = input("Are you sure you want to end the game? Enter 'q' again to confirm, or anything else to cancel.").upper()
+            if confirm == 'Q':
+                break
+            else:
+                print('Resuming game.')
+                continue
 
         #CHECKING VALIDITY OF MOVE
+
         if len(move) == 2:
             if move[-1] not in '12345678' or move[-2] not in 'ABCDEFGH':
                 print('Invalid move entered, please try again.')

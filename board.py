@@ -108,10 +108,92 @@ class Board():
         self.board[row][col] = piece
 
     def calc_diagonal(self, piece):
-        return
+        # UP AND LEFT
+        row = piece.pos[0] + 1
+        col = piece.pos[1] + 1
+        if row < 8 and col < 8:
+            while (7 >= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                row += 1
+                col += 1
+
+        # DOWN AND RIGHT
+        row = piece.pos[0] - 1
+        col = piece.pos[1] - 1
+
+        if row >= 0 and col >= 0:
+            while (0 <= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                row -= 1
+                col -= 1
+
+        # UP AND RIGHT
+        row = piece.pos[0] + 1
+        col = piece.pos[1] - 1
+
+        if row < 8 and col >= 0:
+            while (7 >= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                row += 1
+                col -= 1
+
+        # DOWN AND LEFT
+        row = piece.pos[0] - 1
+        col = piece.pos[1] + 1
+
+        if row >= 0 and col < 8:
+            while (0 <= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                row -= 1
+                col += 1
 
     def calc_cardinal(self, piece):
-        return
+
+        #Finding possible vertical rules:
+        row = piece.pos[0] + 1
+        col = piece.pos[1]
+        if row < 8:
+            while (7 >= row) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                row += 1
+
+        row = piece.pos[0] - 1
+
+        if row >= 0:
+            while (0 <= row) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                row -= 1
+
+        # Finding possible horizontal moves:
+        row = piece.pos[0]
+        col = piece.pos[1] + 1
+        if col < 8:
+            while (7 >= col) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                col += 1
+
+        col = piece.pos[1] - 1
+
+        if col >= 0:
+            while (0 <= col) and isinstance(self.board[row][col], EmptySquare):
+                coords_converted = (self.col_dict_rev[col], str((row) + 1))
+                move_converted = str(piece)[0] + ''.join(coords_converted)
+                piece.legal_moves.append(move_converted)
+                col -= 1
 
     def check_legality(self, move, colour):
         #TODO: Put functions for finding diagonal and vertical/horizontal legal moves in functions so they can easily combine for the queen.
@@ -168,44 +250,7 @@ class Board():
         #ROOK
         elif move[0] == 'R':
             for rook in checking_dict['R']:
-
-                #Finding possible vertical moves:
-                row = rook.pos[0] + 1
-                col = rook.pos[1]
-                if row < 8:
-                    while (7 >= row) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'R' + ''.join(coords_converted)
-                        rook.legal_moves.append(move_converted)
-                        row += 1
-
-                row = rook.pos[0] - 1
-
-                if row >= 0:
-                    while (0 <= row) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'R' + ''.join(coords_converted)
-                        rook.legal_moves.append(move_converted)
-                        row -= 1
-
-                #Finding possible horizontal moves
-                row = rook.pos[0]
-                col = rook.pos[1] + 1
-                if col < 8:
-                    while (7 >= col) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'R' + ''.join(coords_converted)
-                        rook.legal_moves.append(move_converted)
-                        col += 1
-
-                col = rook.pos[1] - 1
-
-                if col >= 0:
-                    while (0 <= col) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'R' + ''.join(coords_converted)
-                        rook.legal_moves.append(move_converted)
-                        col -= 1
+                self.calc_cardinal(rook)
 
             for rook in checking_dict['R']:
                 if move in rook.legal_moves:
@@ -266,52 +311,7 @@ class Board():
         elif move[0] == 'B':
             for bishop in checking_dict['B']:
 
-                #UP AND LEFT
-                row = bishop.pos[0] + 1
-                col = bishop.pos[1] + 1
-                if row < 8 and col < 8:
-                    while (7 >= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'B' + ''.join(coords_converted)
-                        bishop.legal_moves.append(move_converted)
-                        row += 1
-                        col += 1
-
-                #DOWN AND RIGHT
-                row = bishop.pos[0] - 1
-                col = bishop.pos[1] - 1
-
-                if row >= 0 and col >= 0:
-                    while (0 <= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'B' + ''.join(coords_converted)
-                        bishop.legal_moves.append(move_converted)
-                        row -= 1
-                        col -= 1
-
-                #UP AND RIGHT
-                row = bishop.pos[0] + 1
-                col = bishop.pos[1] - 1
-
-                if row < 8 and col >= 0:
-                    while (7 >= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'B' + ''.join(coords_converted)
-                        bishop.legal_moves.append(move_converted)
-                        row += 1
-                        col -= 1
-
-                #DOWN AND LEFT
-                row = bishop.pos[0] - 1
-                col = bishop.pos[1] + 1
-
-                if row >= 0 and col < 8:
-                    while (0 <= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
-                        coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                        move_converted = 'B' + ''.join(coords_converted)
-                        bishop.legal_moves.append(move_converted)
-                        row -= 1
-                        col += 1
+                self.calc_diagonal(bishop)
 
                 for bishop in checking_dict['B']:
                     if move in bishop.legal_moves:
@@ -336,7 +336,30 @@ class Board():
         #QUEEN
         elif move[0] == 'Q':
             for queen in checking_dict['Q']:
-                return
+
+                self.calc_cardinal(queen)
+                self.calc_diagonal(queen)
+
+            for queen in checking_dict['Q']:
+                if move in queen.legal_moves:
+                    legal = True
+
+                    last_row = queen.pos[0]
+                    last_col = queen.pos[1]
+
+                    if colour == 1:
+                        queen.pos = (queen.pos[0] + (int(move[2]) - 1), queen.pos[1])
+                        self.white_pieces['Q'] = [queen for queen in checking_dict['Q']]
+                    else:
+                        queen.pos = (queen.pos[0] - (int(move[2]) - 1), queen.pos[1])
+                        self.black_pieces['Q'] = [queen for queen in checking_dict['Q']]
+
+                    self.update(queen, move, colour)
+
+                    self.board[last_row][last_col] = EmptySquare()
+
+                queen.legal_moves = []  # Reset legal moves
+
 
         #KING
         elif move[0] == 'K' or move == '0-0' or move == '0-0-0':
@@ -356,7 +379,6 @@ class Board():
                             king.legal_moves.append(move_converted)
 
                 for king in checking_dict['K']:
-                    print(king.legal_moves)
                     if move in king.legal_moves:
                         legal = True
 
