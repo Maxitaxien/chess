@@ -14,8 +14,8 @@ class Board():
         self.board = [[EmptySquare() for row in range(8)] for col in range(8)]
         self.white_pieces = {}
         self.black_pieces = {}
-        self.col_dict = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
-        self.col_dict_rev = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'F', 6: 'G', 7: 'H'}
+        self.col_dict = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
+        self.col_dict_rev = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'}
 
     def setup(self): #Sets initial position and pieces to piece dictionaries
 
@@ -122,7 +122,7 @@ class Board():
                 col += 1
             if (7 >= row) and (7 >= col) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
         # DOWN AND RIGHT
@@ -138,7 +138,7 @@ class Board():
                 col -= 1
             if (0 <= row) and (0 <= col) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
         # UP AND RIGHT
@@ -154,7 +154,7 @@ class Board():
                 col -= 1
             if (7 >= row) and (0 <= col) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
         # DOWN AND LEFT
@@ -170,7 +170,7 @@ class Board():
                 col += 1
             if (0 <= row) and (7 >= col) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
     def calc_cardinal(self, piece):
@@ -186,7 +186,7 @@ class Board():
                 row += 1
             if (7 <= row)  and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
         row = piece.pos[0] - 1
@@ -199,7 +199,7 @@ class Board():
                 row -= 1
             if (0 <= row) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
         # Finding possible horizontal moves:
@@ -213,7 +213,7 @@ class Board():
                 col += 1
             if (7 >= col) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
         col = piece.pos[1] - 1
@@ -226,10 +226,10 @@ class Board():
                 col -= 1
             if (0 <= col) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'X' + ''.join(coords_converted)
+                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
 
-    def normal_move(self, move, colour):
+    def legal_move(self, move, colour):
         piece_to_move = None
         legal = False
 
@@ -240,7 +240,7 @@ class Board():
 
         #PAWN
         #TODO: For pawns, it makes sense to only check pawns on the same column. This is a possible optimization for the program.
-        if len(move) == 2 or len(move) == 4: #Length two: g4 for instance, length four: gxh4 for instance
+        if move[0] not in 'NBRQK':
             for pawn in checking_dict['P']: #Check every pawn
                 potential_moves = []
                 basic_move = (1, 0) if colour == 1 else (-1, 0) #Black moves down the board, white moves up
@@ -268,7 +268,7 @@ class Board():
                     pos_after_move = (pawn.pos[0] + capture[0], pawn.pos[1] + capture[1])
                     if ((7 >= pos_after_move[0]) >= 0) and (7 >= pos_after_move[1] >= 0) and not(isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare)) and self.board[pos_after_move[0]][pos_after_move[1]].colour != pawn.colour:
                         coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
-                        move_converted = self.col_dict_rev[pawn.pos[1]] + 'X' + ''.join(coords_converted)
+                        move_converted = self.col_dict_rev[pawn.pos[1]] + 'x' + ''.join(coords_converted)
                         pawn.legal_moves.append(move_converted)
 
             for pawn in checking_dict['P']:
@@ -330,7 +330,7 @@ class Board():
                             knight.legal_moves.append(move_converted)
                         elif self.board[pos_after_move[0]][pos_after_move[1]].colour != knight.colour:
                             coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
-                            move_converted = 'N' + 'X' + ''.join(coords_converted)
+                            move_converted = 'N' + 'x' + ''.join(coords_converted)
                             knight.legal_moves.append(move_converted)
 
 
@@ -343,10 +343,10 @@ class Board():
                     last_col = knight.pos[1]
 
                     if colour == 1:
-                        knight.pos = (knight.pos[0] + (int(move[-1]) - 1), knight.pos[-2] - int(self.col_dict[move[-2]]))
+                        knight.pos = (knight.pos[0] + (int(move[-1]) - 1), knight.pos[1] - int(self.col_dict[move[-2]]))
                         self.white_pieces['N'] = [knight for knight in checking_dict['N']]
                     else:
-                        knight.pos = (knight.pos[0] - (int(move[-1]) - 1), knight.pos[-2] - int(self.col_dict[move[-2]]))
+                        knight.pos = (knight.pos[0] - (int(move[-1]) - 1), knight.pos[1] - int(self.col_dict[move[-2]]))
                         self.black_pieces['N'] = [knight for knight in checking_dict['N']]
 
                     self.update(knight, move, colour)
@@ -430,7 +430,7 @@ class Board():
                             king.legal_moves.append(move_converted)
                         elif self.board[pos_after_move[0]][pos_after_move[1]].colour != king.colour:
                             coords_converted = (self.col_dict_rev[pos_after_move[1]], str((pos_after_move[0]) + 1))
-                            move_converted = 'K' + 'X' + ''.join(coords_converted)
+                            move_converted = 'K' + 'x' + ''.join(coords_converted)
                             king.legal_moves.append(move_converted)
 
 
