@@ -184,7 +184,7 @@ class Board():
                 move_converted = str(piece)[0] + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
                 row += 1
-            if (7 <= row)  and self.board[row][col].colour != piece.colour:
+            if (7 >= row) and self.board[row][col].colour != piece.colour:
                 coords_converted = (self.col_dict_rev[col], str((row) + 1))
                 move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
                 piece.legal_moves.append(move_converted)
@@ -390,7 +390,6 @@ class Board():
                 self.calc_diagonal(queen)
 
             for queen in checking_dict['Q']:
-                print(queen.legal_moves)
                 if move in queen.legal_moves:
                     legal = True
 
@@ -421,7 +420,6 @@ class Board():
                 potential_moves = [(1,1),(1,0),(1,-1),(0,1),(0,-1),(-1,1),(-1,0),(-1,-1)]
 
                 for potential_move in potential_moves:
-
                     pos_after_move = (king.pos[0] + potential_move[0], king.pos[1] + potential_move[1])
                     if (7 >= pos_after_move[0] >= 0) and (7 >= pos_after_move[1] >= 0):
                         if isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare):
