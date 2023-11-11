@@ -6,7 +6,7 @@ class Pawn:
     def promote(self, move):
         pass
     def __str__(self):
-        return 'P_' + self.colour
+        return 'P_' + ('W' if self.colour == 1 else 'B')
 
 
 class Knight:
@@ -16,7 +16,7 @@ class Knight:
         self.legal_moves = []
 
     def __str__(self):
-        return 'N_' + self.colour
+        return 'N_' + ('W' if self.colour == 1 else 'B')
 
 class Bishop:
     def __init__(self, colour=None, pos=None):
@@ -25,7 +25,7 @@ class Bishop:
         self.legal_moves = []
 
     def __str__(self):
-        return 'B_' + self.colour
+        return 'B_' + ('W' if self.colour == 1 else 'B')
 class Rook:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
@@ -33,7 +33,7 @@ class Rook:
         self.legal_moves = []
 
     def __str__(self):
-        return 'R_' + self.colour
+        return 'R_' + ('W' if self.colour == 1 else 'B')
 class Queen:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
@@ -41,7 +41,7 @@ class Queen:
         self.legal_moves = []
 
     def __str__(self):
-        return 'Q_' + self.colour
+        return 'Q_' + ('W' if self.colour == 1 else 'B')
 class King:
     def __init__(self, colour=None, pos=None):
         self.colour = colour
@@ -51,7 +51,7 @@ class King:
         self.legal_moves = []
 
     def __str__(self):
-        return 'K_' + self.colour
+        return 'K_' + ('W' if self.colour == 1 else 'B')
 
 class EmptySquare:
     def __init__(self, colour=None, pos=None):
