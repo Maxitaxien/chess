@@ -14,6 +14,7 @@ class Knight:
         self.colour = colour
         self.pos = pos
         self.legal_moves = []
+        self.next_moves = [] #Used for checking possible captures after movement, to see if king is put in check
 
     def __str__(self):
         return 'N_' + ('W' if self.colour == 1 else 'B')
