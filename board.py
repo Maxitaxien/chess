@@ -2,8 +2,8 @@
 This could have some general rules for the board - it restricts the pieces
 to stay on the 1-8 coordinates in both the x and y direction.
 
-Initially I will make the board as a standard Python matrix,
-before experimenting with more exciting options later.
+Initially I will make the board as a standard Python nested list,
+before experimenting with more exciting/better looking options later.
 
 """
 
@@ -14,6 +14,8 @@ class Board():
         self.board = [[EmptySquare() for row in range(8)] for col in range(8)]
         self.white_pieces = {}
         self.black_pieces = {}
+
+        #Dictionaries for translating algebraic chess notation to board coordinates
         self.col_dict = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7}
         self.col_dict_rev = {0: 'a', 1: 'b', 2: 'c', 3: 'd', 4: 'e', 5: 'f', 6: 'g', 7: 'h'}
 
@@ -80,13 +82,20 @@ class Board():
         self.board[7][4] = kings_b[0]
         self.black_pieces['K'] = kings_b
 
-    def show_board(self, colour=1):
+    def show_board(self, colour=1): #TODO: MAKE THIS SHOW A-H and 1-8
+        columns = ['   A   ', '   B   ', '   C   ', '   D   ', '   E   ', '   F   ', '   G   ', '   H   ']
+
         if colour == 1:
+            row_counter = 8
             for row in reversed(self.board):
-                print([str(piece) for piece in row])
+                print([str(piece) for piece in row], row_counter)
+                row_counter -= 1
         else:
+            row_counter = 1
             for row in self.board:
-                print([str(piece) for piece in row])
+                print([str(piece) for piece in row], row_counter)
+                row_counter += 1
+        print(''.join([char for char in columns]))
 
     def update(self, piece, move, colour):
         # Dictionary to convert 'ABCDEFGH' to numbers to update board
@@ -291,10 +300,11 @@ class Board():
                 possible_captures_notation.append(move_converted)
                 if not (isinstance(self.board[pos_after_move[0]][pos_after_move[1]], EmptySquare)) and self.board[pos_after_move[0]][pos_after_move[1]].colour != piece.colour:
                     piece.legal_moves.append(move_converted)
+                    piece.legal_captures.append(move_converted)
 
         # Calculates if the opposing king would be in check after the move
         if for_king:
-            return [move[-2:] for move in possible_captures_notation]
+            return [move[2:] for move in possible_captures_notation]
 
     def calc_knight(self, piece, for_king=False):
         potential_moves = [(2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2)]
@@ -319,9 +329,8 @@ class Board():
 
     def calc_king(self, piece, for_king=False):
         #FINDING SQUARES ATTACKED BY OPPOSING COLOUR:
-        #TODO: MAKE IT CHECK WHEN SUCH A SQUARE MATCHES KING POSITION
-        #IN THESE CASES, MOVES SHOULD BE LIMITED TO KING MOVES, MOVES THAT CAPTURE THE ATTACKER AND MOVES THAT DISRUPT THE ATTACKER
-        #Put this functionality in it's own function?
+        #TODO: IN CASES WHERE KING IS IN CHECK,
+        #TODO: MOVES SHOULD BE LIMITED TO KING MOVES, MOVES THAT CAPTURE THE ATTACKER AND MOVES THAT DISRUPT THE ATTACKER
 
         threatened_squares = self.calc_threats(piece.colour)
 
@@ -352,7 +361,6 @@ class Board():
         checking_dict = self.white_pieces if colour == 1 else self.black_pieces
 
         #PAWN
-        #TODO: For pawns, it makes sense to only check pawns on the same column. This is a possible optimization for the program.
         if move[0] not in 'NBRQK':
             for pawn in checking_dict['P']: #Check every pawn
                 self.calc_pawn(pawn)
@@ -373,11 +381,23 @@ class Board():
 
                     self.update(pawn, move, colour)
 
+                    potential_checker = pawn
+
                     self.board[last_row][last_col] = EmptySquare()
 
                 pawn.legal_moves = []  # Reset legal moves
 
-            #TODO: IMPLEMENT CHECK FOR WHEN PAWN ATTACKS OPPOSING KING
+            if legal:
+                self.calc_pawn(potential_checker)
+
+                opposing_dict = self.black_pieces if potential_checker.colour == 1 else self.white_pieces
+                king = opposing_dict['K'][0]
+                algebraic_pos = (self.col_dict_rev[king.pos[1]] + str(king.pos[0] + 1))
+
+                for move in potential_checker.legal_captures:
+                    if move[2:] == algebraic_pos:
+                        check = True
+
         #ROOK
         elif move[0] == 'R':
             for rook in checking_dict['R']:

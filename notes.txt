@@ -2,3 +2,23 @@ If we want to find out when we have delivered a check, we should calculate legal
 and then see if the attacked coordinates match the opposing king's coordinates.
 
 Might have to at every point calculate every legal move anyway, as the current solution does not account for discovered checks...
+
+Make sure to implement logic to deal with when multiple of the same piece can move to the same square.
+
+Pseudocode for making other moves illegal when in check:
+
+if check:
+    save checking_move
+    for each possible moves:
+        if checking_move is still possible, continue
+        else, checkmate
+    if possible move exists, ask for move:
+        if checking_move still legal after given_move:
+            given_move is illegal
+        else:
+            given_move is played
+
+
+Pseudocode for stalemate:
+if check == false and for all pieces: piece.legal_moves == []:
+    result = stalemate

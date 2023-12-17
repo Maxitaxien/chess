@@ -8,8 +8,9 @@ The general plan -
 3: Make the pieces able to make legal moves without allowing them to exit the board. - DONE
 4: Make the pieces unable to step on squares where friendly pieces are situated. - DONE
 5: Make the pieces able to capture enemy pieces. - DONE
-6: Implement final checkmate and stalemate rules.
-7: Implement special moves (castling, en passant)
+6: Implement final checkmate and stalemate rules. - ONGOING
+7: Implement special moves (castling, en passant, promotion - (especially important!))
+8: Make some kind of graphics for the game
 
 After this: Using the game as a basis for a reinforcement learning agent?
 """

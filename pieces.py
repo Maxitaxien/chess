@@ -3,6 +3,7 @@ class Pawn:
         self.colour = colour
         self.pos = pos
         self.legal_moves = []
+        self.legal_captures = []
     def promote(self, move):
         pass
     def __str__(self):
