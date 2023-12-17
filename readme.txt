@@ -7,4 +7,9 @@ The file pieces.py has all the piece classes with their associated methods.
 
 The file board.py contains the Board classes with its main attribute Board.board which has a board representation. This file also has the logic for updating the board and checking for legal moves.
 
-The file main.py contains the setup of the board and the main game loop.
+The file old_main.py contains the old game main loop that printed the bort as a nested list of string representations of the pieces.
+
+The file main.py contains the main game loop with a simple tkinter graphical implementation.
+
+
+To play the game as it is now, run the main.py file.

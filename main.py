@@ -1,7 +1,6 @@
-"""
-CHESS
+"""CHESS
 
-A program in which I will try to create the game of chess in Python.
+A program for the game of chess in Python.
 The general plan -
 1: Create pieces with associated methods - DONE
 2: Create a basic board - DONE
@@ -15,65 +14,79 @@ The general plan -
 After this: Using the game as a basis for a reinforcement learning agent?
 """
 
+#TODO: ADD INSTRUCTIONS BUTTON THAT SHOWS INFO FROM INTRODUCTION IN old_main.py FILE.
+
+import tkinter as tk
 from board import Board
+
 def main():
-    board = Board()
-    board.setup()
+    def handle_move(event=None):
+        nonlocal turn
+        nonlocal turn_counter
 
-    turn = 1  # Indicates white's turn
-    turn_counter = 1
-
-    print("""Welcome to chess! Every move, enter a valid move in algebraic chess notation to continue the game, or enter 'Q' to quit. \n 
-    Note that you must use uppercase letters for pieces (NBRKQ) and lowercase for pawns, and include a lowercase "x" in case of captures. \n
-    You do not need to include "+" or "#" for check and checkmate. \n
-    Here is the initial position:""")
-    board.show_board(turn)
-
-
-    while True: #MAIN GAME LOOP
-        if turn == 1:
-            move = input('Enter white\'s move in algebraic notation.')
-
-        elif turn == -1:
-            move = input('Enter black\'s move in algebraic notation.')
-
-        if move.upper() == 'Q':
-            confirm = input("Are you sure you want to end the game? Enter 'q' again to confirm, or anything else to cancel.").upper()
-            if confirm == 'Q':
-                break
-            else:
-                print('Resuming game.')
-                continue
-
-        #CHECKING VALIDITY OF MOVE
+        move = entry.get()
 
         if len(move) == 2:
             if move[-1] not in '12345678' or move[-2] not in 'abcdefgh':
                 print('Invalid move entered, please try again.')
-                continue
 
         elif len(move) == 3:
             if move[-1] not in '12345678' or move[-2] not in 'abcdefgh' or move[-3] not in 'RNBKQ':
                 print('Invalid move entered, please try again.')
-                continue
 
-        # CHECK LEGALITY + MOVE PIECE IF LEGAL
+        elif len(move) == 4:
+            pass #TODO: IMPLEMENT LOGIC TO CHECK IF IT IS A CAPTURE (Rxe4) OR A "DOUBLE" MOVE (Raa6, R2a6)
+
+        #TODO: DO THE SAME FOR MOVES OF LEN 5
+        #TODO: SET SPECIAL FLAG FOR THESE MOVES, ALLOW FLAG IN board.legal_move AND IN THESE CASES ONLY MOVE THE PIECE THAT MATCHES
+
         legal, check = board.legal_move(move, turn)
 
         if legal:
             print(f'{"White" if turn == 1 else "Black"} played {move}.')
             if check:
-                print(f'The {"black" if turn == 1 else "white"} king is in check.')
+                show_check_message()
+            turn *= -1
+            board.draw_board(canvas)
+            clear_entry()
+            turn_counter += +0.5
         else:
             print('Illegal move entered, please try again.')
-            continue
 
-        turn_counter += 0.5
-        turn *= -1
+    def show_check_message():
+        x_entry, y_entry = entry.winfo_x(), entry.winfo_y()
+        check_label.place(x=x_entry - 80, y=y_entry, anchor=tk.NE)
+        root.after(2000, check_label.place_forget)
+    def clear_entry():
+        entry.delete(0, tk.END)  #Clears text entry field
 
-        board.show_board(turn)
+    board = Board()
+    board.setup()
 
-    print(f'The game lasted {turn_counter} turns.')
+    turn = 1
+    turn_counter = 1
+
+    root = tk.Tk()
+    root.title("Chess")
+
+    canvas = tk.Canvas(root, width=640, height=640)
+    canvas.pack()
+
+    entry_var = tk.StringVar()
+
+    entry = tk.Entry(root, textvariable=entry_var)
+    entry.bind("<Return>", handle_move)
+
+    entry.pack()
+
+    submit_button = tk.Button(root, text='Submit Move', command=handle_move)
+    submit_button.pack()
+
+    check_label = tk.Label(root, text='Check!', font=('Times New Roman', 18), bg='white')
+
+    board.draw_board(canvas)
+
+    root.mainloop()
 
 if __name__ == '__main__':
     main()

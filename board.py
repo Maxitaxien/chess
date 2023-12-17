@@ -82,20 +82,21 @@ class Board():
         self.board[7][4] = kings_b[0]
         self.black_pieces['K'] = kings_b
 
-    def show_board(self, colour=1): #TODO: MAKE THIS SHOW A-H and 1-8
-        columns = ['   A   ', '   B   ', '   C   ', '   D   ', '   E   ', '   F   ', '   G   ', '   H   ']
+    def draw_board(self, canvas):
+        square_size = 80
+        colors = ["white", "grey"]
 
-        if colour == 1:
-            row_counter = 8
-            for row in reversed(self.board):
-                print([str(piece) for piece in row], row_counter)
-                row_counter -= 1
-        else:
-            row_counter = 1
-            for row in self.board:
-                print([str(piece) for piece in row], row_counter)
-                row_counter += 1
-        print(''.join([char for char in columns]))
+        for i in range(8):
+            for j in range(8):
+                x0, y0 = j * square_size, i * square_size
+                x1, y1 = x0 + square_size, y0 + square_size
+                color = colors[(i + j) % 2]
+
+                canvas.create_rectangle(x0, y0, x1, y1, fill=color)
+                canvas.create_text(x0 + square_size / 2, y0 + square_size / 2,
+                                   text=self.board[7 - i][j], font=('Times New Roman', 54))
+
+        canvas.create_rectangle(0, 0, 640, 640, outline="black", width=2)
 
     def update(self, piece, move, colour):
         # Dictionary to convert 'ABCDEFGH' to numbers to update board
@@ -147,128 +148,120 @@ class Board():
         # UP AND LEFT
         row = piece.pos[0] + 1
         col = piece.pos[1] + 1
-        if row < 8 and col < 8:
-            while (7 >= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                row += 1
-                col += 1
-            if (7 >= row) and (7 >= col) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-
-        # DOWN AND RIGHT
-        row = piece.pos[0] - 1
-        col = piece.pos[1] - 1
-
-        if row >= 0 and col >= 0:
-            while (0 <= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                row -= 1
-                col -= 1
-            if (0 <= row) and (0 <= col) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
+        while row < 8 and col < 8 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            row += 1
+            col += 1
+        if row < 8 and col < 8 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
         # UP AND RIGHT
         row = piece.pos[0] + 1
         col = piece.pos[1] - 1
-
-        if row < 8 and col >= 0:
-            while (7 >= row) and (0 <= col) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                row += 1
-                col -= 1
-            if (7 >= row) and (0 <= col) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
+        while row < 8 and col >= 0 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            row += 1
+            col -= 1
+        if row < 8 and col >= 0 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
         # DOWN AND LEFT
         row = piece.pos[0] - 1
         col = piece.pos[1] + 1
+        while row >= 0 and col < 8 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            row -= 1
+            col += 1
+        if row >= 0 and col < 8 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
-        if row >= 0 and col < 8:
-            while (0 <= row) and (7 >= col) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                row -= 1
-                col += 1
-            if (0 <= row) and (7 >= col) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
+        # DOWN AND RIGHT
+        row = piece.pos[0] - 1
+        col = piece.pos[1] - 1
+        while row >= 0 and col >= 0 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            row -= 1
+            col -= 1
+        if row >= 0 and col >= 0 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
         # Calculates if the opposing king would be in check after the move
         if for_king:
             return [move[-2:] for move in piece.legal_moves]
-    def calc_cardinal(self, piece, for_king=False):
 
-        #Finding possible vertical rules:
+    def calc_cardinal(self, piece, for_king=False):
+        # UP
         row = piece.pos[0] + 1
         col = piece.pos[1]
-        if row < 8:
-            while (7 >= row) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                row += 1
-            if (7 >= row) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
+        while row < 8 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            row += 1
+        if row < 8 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
+        # DOWN
         row = piece.pos[0] - 1
+        col = piece.pos[1]
+        while row >= 0 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            row -= 1
+        if row >= 0 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
-        if row >= 0:
-            while (0 <= row) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                row -= 1
-            if (0 <= row) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
+        # LEFT
+        row = piece.pos[0]
+        col = piece.pos[1] - 1
+        while col >= 0 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            col -= 1
+        if col >= 0 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
-        # Finding possible horizontal moves:
+        # RIGHT
         row = piece.pos[0]
         col = piece.pos[1] + 1
-        if col < 8:
-            while (7 >= col) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                col += 1
-            if (7 >= col) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-
-        col = piece.pos[1] - 1
-
-        if col >= 0:
-            while (0 <= col) and isinstance(self.board[row][col], EmptySquare):
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
-                col -= 1
-            if (0 <= col) and self.board[row][col].colour != piece.colour:
-                coords_converted = (self.col_dict_rev[col], str((row) + 1))
-                move_converted = str(piece)[0] + 'x' + ''.join(coords_converted)
-                piece.legal_moves.append(move_converted)
+        while col < 8 and isinstance(self.board[row][col], EmptySquare):
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
+            col += 1
+        if col < 8 and self.board[row][col].colour != piece.colour:
+            coords_converted = (self.col_dict_rev[col], str(row + 1))
+            move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
+            piece.legal_moves.append(move_converted)
 
         # Calculates if the opposing king would be in check after the move
         if for_king:
             return [move[-2:] for move in piece.legal_moves]
+
     def calc_pawn(self, piece, for_king=False):
         potential_moves = []
         basic_move = (1, 0) if piece.colour == 1 else (-1, 0)  # Black moves down the board, white moves up
@@ -397,6 +390,8 @@ class Board():
                 for move in potential_checker.legal_captures:
                     if move[2:] == algebraic_pos:
                         check = True
+
+                potential_checker.legal_moves = []
 
         #ROOK
         elif move[0] == 'R':

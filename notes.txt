@@ -1,6 +1,3 @@
-If we want to find out when we have delivered a check, we should calculate legal moves for each piece after it has moved,
-and then see if the attacked coordinates match the opposing king's coordinates.
-
 Might have to at every point calculate every legal move anyway, as the current solution does not account for discovered checks...
 
 Make sure to implement logic to deal with when multiple of the same piece can move to the same square.
