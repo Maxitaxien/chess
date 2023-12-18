@@ -1,4 +1,5 @@
-"""CHESS
+"""
+CHESS
 
 A program for the game of chess in Python.
 The general plan -
@@ -49,14 +50,14 @@ def main():
             turn *= -1
             board.draw_board(canvas)
             clear_entry()
-            turn_counter += +0.5
+            turn_counter += 0.5
         else:
             print('Illegal move entered, please try again.')
 
     def show_check_message():
         x_entry, y_entry = entry.winfo_x(), entry.winfo_y()
         check_label.place(x=x_entry - 80, y=y_entry, anchor=tk.NE)
-        root.after(2000, check_label.place_forget)
+        root.after(3000, check_label.place_forget)
     def clear_entry():
         entry.delete(0, tk.END)  #Clears text entry field
 
@@ -69,7 +70,7 @@ def main():
     root = tk.Tk()
     root.title("Chess")
 
-    canvas = tk.Canvas(root, width=640, height=640)
+    canvas = tk.Canvas(root, width=680, height=700)
     canvas.pack()
 
     entry_var = tk.StringVar()

@@ -8,6 +8,7 @@ before experimenting with more exciting/better looking options later.
 """
 
 from pieces import *
+import tkinter as tk
 
 class Board():
     def __init__(self):
@@ -82,13 +83,15 @@ class Board():
         self.board[7][4] = kings_b[0]
         self.black_pieces['K'] = kings_b
 
+    #NOTE: The following function is heavily inspired by output from ChatGPT
     def draw_board(self, canvas):
         square_size = 80
         colors = ["white", "grey"]
+        margin = 20  # Define a margin to leave space for labels
 
         for i in range(8):
             for j in range(8):
-                x0, y0 = j * square_size, i * square_size
+                x0, y0 = j * square_size + margin, i * square_size + margin
                 x1, y1 = x0 + square_size, y0 + square_size
                 color = colors[(i + j) % 2]
 
@@ -96,7 +99,28 @@ class Board():
                 canvas.create_text(x0 + square_size / 2, y0 + square_size / 2,
                                    text=self.board[7 - i][j], font=('Times New Roman', 54))
 
-        canvas.create_rectangle(0, 0, 640, 640, outline="black", width=2)
+        #A-H top
+        for col in range(8):
+            canvas.create_text(margin + square_size / 2 + col * square_size, margin / 2,
+                               text=chr(65 + col), font=("Arial", 12), anchor=tk.CENTER)
+
+        #A-H bottom
+        for col in range(8):
+            canvas.create_text(margin + square_size / 2 + col * square_size, margin*2 + 8 * square_size,
+                               text=chr(65 + col), font=("Arial", 12), anchor=tk.CENTER)
+
+        #1-8 left
+        for row in range(8):
+            canvas.create_text(margin / 2, margin + square_size / 2 + row * square_size,
+                                text=str(8 - row), font=("Arial", 12), anchor=tk.CENTER)
+
+        #1-8 right
+        for row in range(8):
+            canvas.create_text(margin * 1.5 + square_size * 8, margin + square_size / 2 + row * square_size,
+                               text=str(8 - row), font=("Arial", 12), anchor=tk.CENTER)
+
+        canvas.create_rectangle(margin, margin, margin + 8 * square_size, margin + 8 * square_size,
+                                outline="black", width=2)
 
     def update(self, piece, move, colour):
         # Dictionary to convert 'ABCDEFGH' to numbers to update board
