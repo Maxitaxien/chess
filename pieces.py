@@ -4,6 +4,8 @@ class Pawn:
         self.pos = pos
         self.legal_moves = []
         self.legal_captures = []
+        self.algebraic = 'P'
+        self.has_moved = False
     def promote(self, move):
         pass
     def __str__(self):
@@ -17,6 +19,7 @@ class Knight:
         self.legal_moves = []
         self.algebraic = 'K'
         self.next_moves = [] #Used for checking possible captures after movement, to see if king is put in check
+        self.has_moved = False
 
     def __str__(self):
         return '♘' if self.colour == 1 else '♞'
@@ -27,6 +30,7 @@ class Bishop:
         self.pos = pos
         self.legal_moves = []
         self.algebraic = 'B'
+        self.has_moved = False
 
     def __str__(self):
         return '♗' if self.colour == 1 else '♝'
@@ -36,6 +40,7 @@ class Rook:
         self.pos = pos
         self.legal_moves = []
         self.algebraic = 'R'
+        self.has_moved = False
 
     def __str__(self):
         return '♖' if self.colour == 1 else '♜'
@@ -45,6 +50,7 @@ class Queen:
         self.pos = pos
         self.legal_moves = []
         self.algebraic = 'Q'
+        self.has_moved = False
 
     def __str__(self):
         return '♕' if self.colour == 1 else '♛'

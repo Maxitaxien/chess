@@ -2,15 +2,33 @@ The rules:
 
 Pieces
 Pawn - Can usually move one square, but can also choose to move two on the first move. Takes diagonally.
-Knight - Moves in an L-shape, can traverse pieces on its path.
-Bishop - Can move as many squares as it wants diagonally.
-Rook - Can move as many squares as it wants vertically and horizontally.
-Queen - Can move as many squares as it wants diagonally, vertically and horizontally.
-King - Can move one square diagonally, vertically and horizontally.
-
+Knight - Moves in an L-shape, can jump over pieces on its path.
+Bishop - Can move as many squares as it wants diagonally (not over pieces).
+Rook - Can move as many squares as it wants vertically and horizontally (not over pieces).
+Queen - Can move as many squares as it wants diagonally, vertically and horizontally (not over pieces).
+King - Can move one square diagonally, vertically and horizontally in any direction.
 
 Board
 The board is 8*8, 64 squares in total. Pieces are naturally confined to the board.
+
+Normal moves
+Normal moves are inputted in standard algebraic chess notation, although note that symbols for check and checkmate ("+" and "#" respectively)
+do not need to be included. When a piece is capturing on a square, "x" must be included. For pawns, the column of the pawn is included, and
+for other pieces, a capital letter signifying the piece type (N=Knight, B=Bishop, R=Rook, Q=Queen, K=King) is included.
+For instance:
+White pawn on a4 moves forward one space: input = a5
+Black pawn on e6 captures on d5: input = exd5
+White bishop on f1 captures on c4: input = Bxc4
+Black king moves to e7: input = Ke7
+
+Special moves (Currently not implemented)
+The these include en passant, castling (kingside and queenside) and
+"double" moves (moves where two of the same kind of piece can move to a square).
+
+En passant notation = To be decided (exf4e.p. or just exf4?)
+Castling notation = Kingside: 0-0, Queenside: 0-0-0
+"Double" moves notation = If both the white knight on c3 and on and on g1 can move to e2: Nge2 / Nce2
+If both the black rook on a6 and the black rook on a3 can capture a piece on a4: R6xa34 / R3xa4
 
 
 Winning
@@ -19,5 +37,5 @@ escape checking, meaning the king is unable to move to a safe square, the piece 
 and the attack of the piece delivering the check cannot be blocked by another piece.
 
 Drawing
-The game is drawn by stalemate, which is when a player has no legal moves.
-As of now, there are no plans to incorporate the 50-move rule and draws by three-fold repetition.
+The game is drawn by stalemate, which is when a player has no legal moves without walking the king into a square
+controlled by an opposing piece. As of now, there are no plans to incorporate the 50-move rule and draws by three-fold repetition.

@@ -8,14 +8,16 @@ The general plan -
 3: Make the pieces able to make legal moves without allowing them to exit the board. - DONE
 4: Make the pieces unable to step on squares where friendly pieces are situated. - DONE
 5: Make the pieces able to capture enemy pieces. - DONE
-6: Implement final checkmate and stalemate rules. - ONGOING
-7: Implement special moves (castling, en passant, promotion - (especially important!))
-8: Make some kind of graphics for the game
+6: Make some kind of graphics for the game - DONE (but under improvement)
+7: Implement final checkmate, double and stalemate rules. - ONGOING
+8: Implement special moves (castling, en passant, promotion - (especially important!))
+
 
 After this: Using the game as a basis for a reinforcement learning agent?
 """
 
 #TODO: ADD INSTRUCTIONS BUTTON THAT SHOWS INFO FROM INTRODUCTION IN old_main.py FILE.
+#TODO: CHANGE PRINT STATEMENTS TO MESSAGES THAT SHOW UP IN TKINTER WINDOW
 
 import tkinter as tk
 from board import Board
@@ -24,35 +26,67 @@ def main():
     def handle_move(event=None):
         nonlocal turn
         nonlocal turn_counter
+        valid = True
+        double = False #Keeps track of if it is a "double" move (two pieces of the same type could move to the square)
+        piece_abbrv = 'RNBKQ'
+        col_abbrv = 'abcdefgh'
+        row_abbrv = '12345678'
 
         move = entry.get()
 
-        if len(move) == 2:
-            if move[-1] not in '12345678' or move[-2] not in 'abcdefgh':
+        #There is surely a better way to do validity checking than exhaustively like this, but there are not that many cases to check for:
+
+        if len(move) == 2: #Moves of the type "e5" are valid
+            if move[-1] not in row_abbrv or move[-2] not in col_abbrv:
+                valid = False
                 print('Invalid move entered, please try again.')
 
-        elif len(move) == 3:
-            if move[-1] not in '12345678' or move[-2] not in 'abcdefgh' or move[-3] not in 'RNBKQ':
-                print('Invalid move entered, please try again.')
+        elif len(move) == 3: #Moves of the type "Qa5" are valid
+            if move[-1] not in row_abbrv or move[-2] not in col_abbrv or move[-3] not in piece_abbrv:
+                if move != '0-0':
+                    valid = False
+                    print('Invalid move entered, please try again.')
 
         elif len(move) == 4:
-            pass #TODO: IMPLEMENT LOGIC TO CHECK IF IT IS A CAPTURE (Rxe4) OR A "DOUBLE" MOVE (Raa6, R2a6)
+            if 'x' in move: #Moves of the type "axb4" or "Bxb4" are valid
+                if move[-1] not in col_abbrv or move[-2] not in col_abbrv or move[0] not in col_abbrv + piece_abbrv:
+                    valid = False
+                    print('Invalid move entered, please try again')
 
-        #TODO: DO THE SAME FOR MOVES OF LEN 5
-        #TODO: SET SPECIAL FLAG FOR THESE MOVES, ALLOW FLAG IN board.legal_move AND IN THESE CASES ONLY MOVE THE PIECE THAT MATCHES
+            else: #Moves of the type "Nge2" and "N6g2" are valid
+                if move[0] not in piece_abbrv or move[1] not in col_abbrv + row_abbrv or move [2] not in col_abbrv or move[3] not in row_abbrv:
+                    valid = False
+                    print('Invalid move entered, please try again.')
+                else:
+                    double = True
 
-        legal, check = board.legal_move(move, turn)
+        elif len(move) == 5: #Moves of the type "Raxa6" are valid
+            if 'x' not in move or move[0] not in piece_abbrv or move[1] not in col_abbrv + row_abbrv or move[2] != 'x'\
+                    or move[3] not in col_abbrv or move[4] not in row_abbrv:
+                if move != '0-0-0':
+                    valid = False
+                    print('Invalid move entered, please try again.')
+            else:
+                double = True
+            #... or move != '0-0-0':
 
-        if legal:
-            print(f'{"White" if turn == 1 else "Black"} played {move}.')
-            if check:
-                show_check_message()
-            turn *= -1
-            board.draw_board(canvas)
-            clear_entry()
-            turn_counter += 0.5
-        else:
-            print('Illegal move entered, please try again.')
+        else: #If 2 > len > 6, the move is never valid.
+            valid = False
+            print('Invalid move entered, please try again')
+
+        if valid:
+            legal, check = board.legal_move(move, turn, double=double)
+
+            if legal:
+                print(f'{"White" if turn == 1 else "Black"} played {move}.')
+                if check:
+                    show_check_message()
+                turn *= -1
+                board.draw_board(canvas)
+                clear_entry()
+                turn_counter += 0.5
+            else:
+                print('Illegal move entered, please try again.')
 
     def show_check_message():
         x_entry, y_entry = entry.winfo_x(), entry.winfo_y()

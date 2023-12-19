@@ -169,7 +169,7 @@ class Board():
         return threatened_squares
 
     def calc_diagonal(self, piece, for_king=False):
-        # UP AND LEFT
+        #UP AND LEFT
         row = piece.pos[0] + 1
         col = piece.pos[1] + 1
         while row < 8 and col < 8 and isinstance(self.board[row][col], EmptySquare):
@@ -183,7 +183,7 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # UP AND RIGHT
+        #UP AND RIGHT
         row = piece.pos[0] + 1
         col = piece.pos[1] - 1
         while row < 8 and col >= 0 and isinstance(self.board[row][col], EmptySquare):
@@ -197,7 +197,7 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # DOWN AND LEFT
+        #DOWN AND LEFT
         row = piece.pos[0] - 1
         col = piece.pos[1] + 1
         while row >= 0 and col < 8 and isinstance(self.board[row][col], EmptySquare):
@@ -211,7 +211,7 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # DOWN AND RIGHT
+        #DOWN AND RIGHT
         row = piece.pos[0] - 1
         col = piece.pos[1] - 1
         while row >= 0 and col >= 0 and isinstance(self.board[row][col], EmptySquare):
@@ -225,12 +225,12 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # Calculates if the opposing king would be in check after the move
+        #Calculates if the opposing king would be in check after the move
         if for_king:
             return [move[-2:] for move in piece.legal_moves]
 
     def calc_cardinal(self, piece, for_king=False):
-        # UP
+        #UP
         row = piece.pos[0] + 1
         col = piece.pos[1]
         while row < 8 and isinstance(self.board[row][col], EmptySquare):
@@ -243,7 +243,7 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # DOWN
+        #DOWN
         row = piece.pos[0] - 1
         col = piece.pos[1]
         while row >= 0 and isinstance(self.board[row][col], EmptySquare):
@@ -256,7 +256,7 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # LEFT
+        #LEFT
         row = piece.pos[0]
         col = piece.pos[1] - 1
         while col >= 0 and isinstance(self.board[row][col], EmptySquare):
@@ -282,7 +282,7 @@ class Board():
             move_converted = piece.algebraic + 'x' + ''.join(coords_converted)
             piece.legal_moves.append(move_converted)
 
-        # Calculates if the opposing king would be in check after the move
+        #Calculates if the opposing king would be in check after the move
         if for_king:
             return [move[-2:] for move in piece.legal_moves]
 
@@ -370,10 +370,12 @@ class Board():
 
         if for_king: #TODO: CHECK FOR OPPOSING KING MOVES AS WELL
             pass
-    def legal_move(self, move, colour):
-        piece_to_move = None
-        legal = False
-        check = False
+    def legal_move(self, move, colour, double):
+        #TODO: IMPLEMENT DIFFERENT LOGIC FOR WHEN "DOUBLE" MOVES ARE PASSED - ONLY RELEVANT FOR KNIGHTS AND ROOKS (MAYBE QUEENS WHEN PROMOTION IS IMPLEMENTED)
+        piece_to_move = None #Which piece will be moved?
+        already_found = False #Has a piece that can make the move already been found?
+        legal = False #Bool to keep track of if the move is legal
+        check = False #Does the move come with check?
 
         checking_dict = self.white_pieces if colour == 1 else self.black_pieces
 
@@ -385,24 +387,18 @@ class Board():
             for pawn in checking_dict['P']:
                 if move in pawn.legal_moves:
                     legal = True
+                    if not(already_found):
+                        already_found = True
 
-                    last_row = pawn.pos[0]
-                    last_col = pawn.pos[1]
+                        last_row = pawn.pos[0]
+                        last_col = pawn.pos[1]
 
-                    if colour == 1:
-                        pawn.pos = (pawn.pos[0] + (int(move[-1]) - 1), pawn.pos[1] - int(self.col_dict[move[-2]]))
-                        self.white_pieces['P'] = [pawn for pawn in checking_dict['P']]
+                        piece_to_move = pawn
+                        potential_checker = pawn
+
                     else:
-                        pawn.pos = (pawn.pos[0] - (int(move[-1]) - 1), pawn.pos[1] - int(self.col_dict[move[-2]]))
-                        self.black_pieces['P'] = [pawn for pawn in checking_dict['P']]
+                        legal = False
 
-                    self.update(pawn, move, colour)
-
-                    potential_checker = pawn
-
-                    self.board[last_row][last_col] = EmptySquare()
-
-                pawn.legal_moves = []  # Reset legal moves
 
             if legal:
                 self.calc_pawn(potential_checker)
@@ -411,38 +407,48 @@ class Board():
                 king = opposing_dict['K'][0]
                 algebraic_pos = (self.col_dict_rev[king.pos[1]] + str(king.pos[0] + 1))
 
-                for move in potential_checker.legal_captures:
-                    if move[2:] == algebraic_pos:
+                for capture in potential_checker.legal_captures:
+                    if capture[2:] == algebraic_pos:
                         check = True
 
                 potential_checker.legal_moves = []
 
         #ROOK
         elif move[0] == 'R':
-            for rook in checking_dict['R']:
-                self.calc_cardinal(rook)
+            if double: #If for instance Ree6 or R6e6 or Rexe6
+                for rook in checking_dict['R']:
+                    self.calc_cardinal(rook)
+                    if (move[1] in 'abcdefgh' and self.col_dict_rev[rook.pos[1]] == move[1]) or \
+                            (move[1] in '12345678' and (rook.pos[0] + 1) == int(move[1])):
+                        if move[:1] + move[2:] in rook.legal_moves:
+                            legal = True
 
-            for rook in checking_dict['R']:
-                if move in rook.legal_moves:
-                    legal = True
+                            last_row = rook.pos[0]
+                            last_col = rook.pos[1]
 
-                    last_row = rook.pos[0]
-                    last_col = rook.pos[1]
+                            piece_to_move = rook
+                            potential_checker = rook
 
-                    if colour == 1:
-                        rook.pos = (rook.pos[0] + (int(move[-1]) - 1), rook.pos[1] - int(self.col_dict[move[-2]]))
-                        self.white_pieces['R'] = [rook for rook in checking_dict['R']]
-                    else:
-                        rook.pos = (rook.pos[0] - (int(move[-1]) - 1), rook.pos[1] - int(self.col_dict[move[-2]]))
-                        self.black_pieces['R'] = [rook for rook in checking_dict['R']]
 
-                    self.update(rook, move, colour)
+            else: #If normal rook move
+                for rook in checking_dict['R']:
+                    self.calc_cardinal(rook)
 
-                    potential_checker = rook
+                for rook in checking_dict['R']:
+                    if move in rook.legal_moves:
+                        legal = True
+                        if not(already_found):
+                            already_found = True
 
-                    self.board[last_row][last_col] = EmptySquare()
+                            last_row = rook.pos[0]
+                            last_col = rook.pos[1]
 
-                rook.legal_moves = []  # Reset legal moves
+                            piece_to_move = rook
+                            potential_checker = rook
+
+                        else:
+                            legal = False
+                            piece_to_move = None
 
             if legal:
                 self.calc_cardinal(potential_checker)
@@ -451,37 +457,46 @@ class Board():
                 king = opposing_dict['K'][0]
                 algebraic_pos = (self.col_dict_rev[king.pos[1]] + str(king.pos[0] + 1))
 
-                for move in potential_checker.legal_moves:
-                    if move[-2:] == algebraic_pos:
+                for capture in potential_checker.legal_moves:
+                    if capture[-2:] == algebraic_pos:
                         check = True
 
         #KNIGHT
         elif move[0] == 'N':
-            for knight in checking_dict['N']:
-                self.calc_knight(knight)
+            if double:  # If for instance Ne6 or N6e6 or Nexe6
+                for knight in checking_dict['N']:
+                    self.calc_knight(knight)
 
+                    if (move[1] in 'abcdefgh' and (self.col_dict_rev[knight.pos[1]]) == move[1]) or (
+                            move[1] in '12345678' and (knight.pos[0] + 1) == int(move[1])):
+                        if move[:1] + move[2:] in knight.legal_moves:
+                            legal = True
 
-            for knight in checking_dict['N']:
-                if move in knight.legal_moves:
-                    legal = True
+                            last_row = knight.pos[0]
+                            last_col = knight.pos[1]
 
-                    last_row = knight.pos[0]
-                    last_col = knight.pos[1]
+                            piece_to_move = knight
+                            potential_checker = knight
 
-                    if colour == 1:
-                        knight.pos = (knight.pos[0] + (int(move[-1]) - 1), knight.pos[1] - int(self.col_dict[move[-2]]))
-                        self.white_pieces['N'] = [knight for knight in checking_dict['N']]
-                    else:
-                        knight.pos = (knight.pos[0] - (int(move[-1]) - 1), knight.pos[1] - int(self.col_dict[move[-2]]))
-                        self.black_pieces['N'] = [knight for knight in checking_dict['N']]
+            else:
+                for knight in checking_dict['N']:
+                    self.calc_knight(knight)
 
-                    self.update(knight, move, colour)
+                for knight in checking_dict['N']:
+                    if move in knight.legal_moves:
+                        legal = True
+                        if not(already_found):
+                            already_found = True
 
-                    potential_checker = knight
+                            last_row = knight.pos[0]
+                            last_col = knight.pos[1]
 
-                    self.board[last_row][last_col] = EmptySquare()
+                            piece_to_move = knight
+                            potential_checker = knight
 
-                knight.legal_moves = []  # Reset legal moves
+                        else:
+                            legal = False
+                            piece_to_move = None
 
 
             if legal:
@@ -491,10 +506,9 @@ class Board():
                 king = opposing_dict['K'][0]
                 algebraic_pos = (self.col_dict_rev[king.pos[1]] + str(king.pos[0] + 1))
 
-                for move in potential_checker.legal_moves:
-                    if move[-2:] == algebraic_pos:
+                for capture in potential_checker.legal_moves:
+                    if capture[-2:] == algebraic_pos:
                         check = True
-
 
         #BISHOP
         elif move[0] == 'B':
@@ -505,24 +519,17 @@ class Board():
                 for bishop in checking_dict['B']:
                     if move in bishop.legal_moves:
                         legal = True
+                        if not(already_found):
+                            already_found = True
+                            last_row = bishop.pos[0]
+                            last_col = bishop.pos[1]
 
-                        last_row = bishop.pos[0]
-                        last_col = bishop.pos[1]
+                            piece_to_move = bishop
+                            potential_checker = bishop
 
-                        if colour == 1:
-                            bishop.pos = (bishop.pos[0] + (int(move[-1]) - 1), bishop.pos[1] - int(self.col_dict[move[-2]]))
-                            self.white_pieces['B'] = [bishop for bishop in checking_dict['B']]
                         else:
-                            bishop.pos = (bishop.pos[0] - (int(move[-1]) - 1), bishop.pos[1] - int(self.col_dict[move[-2]]))
-                            self.black_pieces['B'] = [bishop for bishop in checking_dict['B']]
-
-                        self.update(bishop, move, colour)
-
-                        potential_checker = bishop
-
-                        self.board[last_row][last_col] = EmptySquare()
-
-                    bishop.legal_moves = []  # Reset legal moves
+                            legal = False
+                            piece_to_move = None
 
             if legal:
                 self.calc_diagonal(potential_checker)
@@ -531,8 +538,8 @@ class Board():
                 king = opposing_dict['K'][0]
                 algebraic_pos = (self.col_dict_rev[king.pos[1]] + str(king.pos[0] + 1))
 
-                for move in potential_checker.legal_moves:
-                    if move[-2:] == algebraic_pos:
+                for capture in potential_checker.legal_moves:
+                    if capture[-2:] == algebraic_pos:
                         check = True
 
         #QUEEN
@@ -545,24 +552,18 @@ class Board():
             for queen in checking_dict['Q']:
                 if move in queen.legal_moves:
                     legal = True
+                    if not(already_found):
+                        already_found = True
 
-                    last_row = queen.pos[0]
-                    last_col = queen.pos[1]
+                        last_row = queen.pos[0]
+                        last_col = queen.pos[1]
 
-                    if colour == 1:
-                        queen.pos = (queen.pos[0] + (int(move[-1]) - 1), queen.pos[1] - int(self.col_dict[move[-2]]))
-                        self.white_pieces['Q'] = [queen for queen in checking_dict['Q']]
+                        piece_to_move = queen
+                        potential_checker = queen
+
                     else:
-                        queen.pos = (queen.pos[0] - (int(move[-1]) - 1), queen.pos[1] - int(self.col_dict[move[-2]]))
-                        self.black_pieces['Q'] = [queen for queen in checking_dict['Q']]
-
-                    self.update(queen, move, colour)
-
-                    potential_checker = queen
-
-                    self.board[last_row][last_col] = EmptySquare()
-
-                queen.legal_moves = []  # Reset legal moves
+                        legal = False
+                        piece_to_move = None
 
             if legal:
                 self.calc_cardinal(potential_checker)
@@ -572,8 +573,8 @@ class Board():
                 king = opposing_dict['K'][0]
                 algebraic_pos = (self.col_dict_rev[king.pos[1]] + str(king.pos[0] + 1))
 
-                for move in potential_checker.legal_moves:
-                    if move[-2:] == algebraic_pos:
+                for capture in potential_checker.legal_moves:
+                    if capture[-2:] == algebraic_pos:
                         check = True
 
 
@@ -586,25 +587,37 @@ class Board():
 
 
                 for king in checking_dict['K']:
-                    if move in king.legal_moves:
+                    if move in king.legal_moves and not(already_found):
                         legal = True
+                        if not(already_found):
+                            already_found = True
 
-                        last_row = king.pos[0]
-                        last_col = king.pos[1]
+                            last_row = king.pos[0]
+                            last_col = king.pos[1]
 
-                        if colour == 1:
-                            king.pos = (king.pos[0] + (int(move[-1]) - 1), king.pos[1] - int(self.col_dict[move[-2]]))
-                            self.white_pieces['K'] = [king for king in checking_dict['K']]
+                            piece_to_move = king
+
+                            king.has_moved = True
+
                         else:
-                            king.pos = (king.pos[0] - (int(move[-1]) - 1), king.pos[1] + int(self.col_dict[move[-2]]))
-                            self.black_pieces['K'] = [king for king in checking_dict['K']]
+                            legal = False
+                            piece_to_move = None
 
-                        self.update(king, move, colour)
 
-                        king.has_moved = True
+        if legal:
+            if colour == 1:
+                piece_to_move.pos = (piece_to_move.pos[0] + (int(move[-1]) - 1), piece_to_move.pos[1] - int(self.col_dict[move[-2]]))
+                self.white_pieces[piece_to_move.algebraic] = [piece for piece in checking_dict[piece_to_move.algebraic]]
+            else:
+                piece_to_move.pos = (piece_to_move.pos[0] - (int(move[-1]) - 1), piece_to_move.pos[1] - int(self.col_dict[move[-2]]))
+                self.black_pieces[piece_to_move.algebraic] = [piece for piece in checking_dict[piece_to_move.algebraic]]
 
-                        self.board[last_row][last_col] = EmptySquare()
 
-                    king.legal_moves = []  # Reset legal moves
+            self.update(piece_to_move, move, colour)
+
+            piece_to_move.legal_moves = [] #Reset legal moves for piece moved.
+            piece_to_move.has_moved = True
+
+            self.board[last_row][last_col] = EmptySquare()
 
         return legal, check
