@@ -21,6 +21,7 @@ After this: Using the game as a basis for a reinforcement learning agent?
 
 import tkinter as tk
 from board import Board
+from math import floor
 
 def main():
     def handle_move(event=None):
@@ -49,7 +50,7 @@ def main():
 
         elif len(move) == 4:
             if 'x' in move: #Moves of the type "axb4" or "Bxb4" are valid
-                if move[-1] not in col_abbrv or move[-2] not in col_abbrv or move[0] not in col_abbrv + piece_abbrv:
+                if move[-1] not in row_abbrv or move[-2] not in col_abbrv or move[0] not in col_abbrv + piece_abbrv:
                     valid = False
                     print('Invalid move entered, please try again')
 
@@ -78,12 +79,21 @@ def main():
             legal, check = board.legal_move(move, turn, double=double)
 
             if legal:
+                global last_move
                 print(f'{"White" if turn == 1 else "Black"} played {move}.')
                 if check:
                     show_check_message()
                 turn *= -1
                 board.draw_board(canvas)
                 clear_entry()
+
+                if turn_counter == 1: #initialize if on turn one
+                    last_move = tk.Label(root)
+                else: #if on a later turn, remove the last label before creating a new one
+                    last_move.destroy()
+
+                last_move = tk.Label(root, text="Last move: " + str(floor(turn_counter)) + ('... ' if turn_counter % 1 != 0 else '. ') + move)
+                last_move.place(x=(entry.winfo_x() + 200), y=(entry.winfo_y()), anchor=tk.NE)
                 turn_counter += 0.5
             else:
                 print('Illegal move entered, please try again.')
@@ -95,6 +105,19 @@ def main():
     def clear_entry():
         entry.delete(0, tk.END)  #Clears text entry field
 
+
+    def show_info():
+        # TODO: Create a menu/menubutton to display information
+        info_window = tk.Toplevel(root)
+        info_window.title('Information')
+
+        with open('rules.txt', 'r') as rules:
+            info_text = ''.join([(line) for line in rules.readlines()])
+
+        label = tk.Label(info_window, text=info_text, padx=20, pady=20)
+        label.pack()
+
+
     board = Board()
     board.setup()
 
@@ -103,6 +126,11 @@ def main():
 
     root = tk.Tk()
     root.title("Chess")
+
+    menu = tk.Menu(root)
+    root.config(menu=menu)
+
+    menu.add_command(label='Information', command=show_info)
 
     canvas = tk.Canvas(root, width=680, height=700)
     canvas.pack()

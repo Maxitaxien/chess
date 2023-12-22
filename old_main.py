@@ -1,18 +1,5 @@
 """
-CHESS
-
-A program in which I will try to create the game of chess in Python.
-The general plan -
-1: Create pieces with associated methods - DONE
-2: Create a basic board - DONE
-3: Make the pieces able to make legal moves without allowing them to exit the board. - DONE
-4: Make the pieces unable to step on squares where friendly pieces are situated. - DONE
-5: Make the pieces able to capture enemy pieces. - DONE
-6: Implement final checkmate and stalemate rules. - ONGOING
-7: Implement special moves (castling, en passant, promotion - (especially important!))
-8: Make some kind of graphics for the game
-
-After this: Using the game as a basis for a reinforcement learning agent?
+This is the code used for the nested list representation - currently not used, but perhaps it can be of some use in the future?
 """
 
 
@@ -24,10 +11,6 @@ def main():
     turn = 1  # Indicates white's turn
     turn_counter = 1
 
-    print("""Welcome to chess! Every move, enter a valid move in algebraic chess notation to continue the game, or enter 'Q' to quit. \n 
-    Note that you must use uppercase letters for pieces (NBRKQ) and lowercase for pawns, and include a lowercase "x" in case of captures. \n
-    You do not need to include "+" or "#" for check and checkmate. \n
-    Here is the initial position:""")
     board.show_board(turn)
 
 

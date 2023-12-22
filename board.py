@@ -526,10 +526,11 @@ class Board():
 
                             piece_to_move = bishop
                             potential_checker = bishop
-
                         else:
                             legal = False
                             piece_to_move = None
+
+                        piece_to_move.legal_moves = []
 
             if legal:
                 self.calc_diagonal(potential_checker)

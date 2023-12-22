@@ -1,3 +1,7 @@
+Welcome to chess! Every move, enter a valid move in algebraic chess notation to continue the game.
+Note that you must use uppercase letters for pieces (NBRKQ) and lowercase for pawns, and include a lowercase "x" in case of captures.
+You do not need to include "+" or "#" for check and checkmate.
+
 The rules:
 
 Pieces
